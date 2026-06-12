@@ -12,51 +12,29 @@
 - Все подключения read-only. Ключи с trade/withdraw правами отклоняются.
 - AI proposes, user approves: каждая рекомендация требует подтверждения.
 
-## Быстрый старт (для новичка)
+## Быстрый старт (для новичка — 3 действия)
 
-1. Установи Python 3.11+.
-2. Склонируй репозиторий и поставь зависимости:
+1. **Установи Python 3.11+** с [python.org/downloads](https://python.org/downloads).
+   На Windows при установке поставь галочку **«Add Python to PATH»**.
+2. **Скачай этот проект**: зелёная кнопка Code → Download ZIP → распакуй.
+3. **Запусти установщик**:
+   - Windows: двойной клик по **`install.bat`**
+   - Mac/Linux: `./install.sh`
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+   Установщик сам поставит зависимости, создаст настройки, сгенерирует ключ
+   шифрования и спросит токен Telegram-бота (получается у
+   [@BotFather](https://t.me/BotFather) командой `/newbot` за 2 минуты —
+   установщик подскажет и проверит токен).
 
-3. Создай файл настроек:
+Затем запуск:
 
-   ```bash
-   cp .env.example .env
-   ```
+- Бот: **`start_bot.bat`** (Mac/Linux: `./start_bot.sh`) — и напиши боту `/help`
+- API-сервер (для Plaid/бирж): **`start_api.bat`** или `uvicorn app.main:app`
+  (Swagger: http://localhost:8000/docs)
+- Автоотчёты утром/вечером: **`start_scheduler.bat`** или `python -m app.scheduler`
 
-4. Сгенерируй ключ шифрования и вставь его в `.env` как `FERNET_KEY`:
-
-   ```bash
-   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-   ```
-
-5. Создай Telegram-бота через [@BotFather](https://t.me/BotFather), вставь
-   токен в `.env` как `TELEGRAM_BOT_TOKEN`.
-
-6. Запусти API:
-
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-
-   Swagger-документация: http://localhost:8000/docs
-
-7. Запусти Telegram-бота (в отдельном терминале):
-
-   ```bash
-   python -m app.telegram.bot
-   ```
-
-8. (Опционально) Запусти планировщик утренних/вечерних отчётов:
-
-   ```bash
-   python -m app.scheduler
-   ```
-
-9. Напиши боту `/help` — он покажет все команды.
+Пока окна открыты — всё работает. Ручная настройка (без скриптов) описана
+в `.env.example`: нужны только `TELEGRAM_BOT_TOKEN` и `FERNET_KEY`.
 
 По умолчанию используется SQLite (файл `badger_cfo.db`). Для PostgreSQL
 поменяй `DATABASE_URL` в `.env`, например:
