@@ -22,7 +22,7 @@ export const MOCK = {
 
 type Dict = {
   nav: { story: string; how: string; token: string; burns: string; menu: string; buy: string; roadmap: string; faq: string; contact: string };
-  hero: { kicker: string; title1: string; title2: string; sub: string; ctaBuy: string; ctaMenu: string; soon: string };
+  hero: { kicker: string; title1: string; title2: string; sub: string; ctaBuy: string; ctaMenu: string; soon: string; mediaCaption: string };
   story: { tag: string; title: string; body: string[] };
   how: { tag: string; title: string; sub: string; steps: { t: string; d: string }[] };
   token: { tag: string; title: string; sub: string; rows: { k: string; v: string }[]; alloc: { name: string; pct: number }[] };
@@ -46,6 +46,7 @@ export const dict: Record<Lang, Dict> = {
       ctaBuy: "Купить $DOFFA",
       ctaMenu: "Смотреть меню",
       soon: "Скоро",
+      mediaCaption: "Руки бариста · скоро видео",
     },
     story: {
       tag: "История",
@@ -153,6 +154,7 @@ export const dict: Record<Lang, Dict> = {
       ctaBuy: "Buy $DOFFA",
       ctaMenu: "View menu",
       soon: "Soon",
+      mediaCaption: "Barista hands · video soon",
     },
     story: {
       tag: "Story",
