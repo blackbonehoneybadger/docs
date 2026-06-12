@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+*.db
+app/reports/generated/pdf/*.pdf
+app/reports/generated/images/*.png
+.pytest_cache/
