@@ -5,9 +5,8 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useMotionValue, animate } from "framer-motion";
 import { dict, TOKEN, MOCK, type Lang } from "./content";
 
-// Когда пришлёшь вертикальный ролик бариста — положу его в public/brand/
-// и впишу путь сюда (напр. "/brand/barista.mp4"). Пока null → красивый плейсхолдер с паром.
-const HERO_VIDEO: string | null = null;
+// Вертикальный ролик бариста в hero. Лежит в public/brand/barista.mp4.
+const HERO_VIDEO: string | null = "/brand/barista.mp4";
 
 /* ---------- helpers ---------- */
 
