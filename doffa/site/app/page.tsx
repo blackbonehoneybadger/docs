@@ -5,6 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { motion, useInView, useMotionValue, animate } from "framer-motion";
 import { dict, TOKEN, MOCK, type Lang } from "./content";
 
+// Когда пришлёшь вертикальный ролик бариста — положу его в public/brand/
+// и впишу путь сюда (напр. "/brand/barista.mp4"). Пока null → красивый плейсхолдер с паром.
+const HERO_VIDEO: string | null = null;
+
 /* ---------- helpers ---------- */
 
 function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -109,10 +113,15 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-b from-ink/80 via-ink/70 to-ink" />
         <div className="absolute -left-40 top-1/3 h-96 w-96 rounded-full bg-amber/20 blur-[120px]" />
 
-        <div className="relative mx-auto w-full max-w-6xl px-5 pt-24">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+        <div className="relative mx-auto grid w-full max-w-6xl grid-cols-1 items-center gap-8 px-5 pb-12 pt-28 lg:grid-cols-2 lg:gap-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="order-2 lg:order-1"
+          >
             <p className="mb-5 text-xs font-semibold uppercase tracking-[0.35em] text-amber text-glow">{t.hero.kicker}</p>
-            <h1 className="display max-w-3xl text-5xl font-extrabold leading-[1.02] text-cream-soft sm:text-7xl">
+            <h1 className="display text-5xl font-extrabold leading-[1.02] text-cream-soft sm:text-7xl">
               {t.hero.title1}
               <br />
               <span className="text-amber text-glow">{t.hero.title2}</span>
@@ -127,6 +136,15 @@ export default function Home() {
                 {t.hero.ctaMenu}
               </a>
             </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.9, delay: 0.2 }}
+            className="order-1 lg:order-2"
+          >
+            <HeroMedia video={HERO_VIDEO} caption={t.hero.mediaCaption} />
           </motion.div>
         </div>
       </section>
@@ -407,6 +425,52 @@ function Stat({ label, value, accent }: { label: string; value: React.ReactNode;
         <div className="mt-2 text-xs uppercase tracking-wider text-cream/50">{label}</div>
       </div>
     </Reveal>
+  );
+}
+
+function HeroMedia({ video, caption }: { video: string | null; caption: string }) {
+  return (
+    <div className="floaty relative mx-auto w-full max-w-md">
+      {/* warm glow behind the frame */}
+      <div className="glow-pulse absolute -inset-6 rounded-[2rem] bg-amber/25 blur-3xl" />
+      <div className="relative aspect-[4/5] w-full overflow-hidden rounded-3xl border border-gold/30 bg-gradient-to-b from-espresso-deep to-ink shadow-2xl">
+        {video ? (
+          <video
+            src={video}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div className="relative h-full w-full">
+            {/* steam wisps */}
+            <span className="steam" />
+            <span className="steam s2" />
+            <span className="steam s3" />
+            <span className="steam s4" />
+            {/* line-art coffee cup */}
+            <svg
+              viewBox="0 0 120 120"
+              className="absolute left-1/2 top-1/2 h-28 w-28 -translate-x-1/2 -translate-y-1/2 text-cream/80"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M26 54 h56 v14 a22 22 0 0 1 -22 22 h-12 a22 22 0 0 1 -22 -22 z" />
+              <path d="M82 58 h10 a10 10 0 0 1 0 20 h-8" />
+              <path d="M40 92 h40" />
+            </svg>
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 to-transparent p-4 text-center">
+              <span className="text-[11px] uppercase tracking-[0.25em] text-cream/55">{caption}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
 
