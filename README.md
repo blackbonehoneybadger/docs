@@ -12,7 +12,43 @@
 - Все подключения read-only. Ключи с trade/withdraw правами отклоняются.
 - AI proposes, user approves: каждая рекомендация требует подтверждения.
 
-## Быстрый старт (для новичка — 3 действия)
+## ☁️ Деплой в облако (3 клика → приложение на телефоне)
+
+### Шаг 1 — Сгенерируй ключ шифрования (на своём компьютере)
+
+```bash
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+Скопируй результат — он понадобится на следующем шаге.
+
+### Шаг 2 — Деплой на Render.com
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/blackbonehoneybadger/docs)
+
+1. Нажми кнопку выше → войди в Render через GitHub
+2. Render найдёт `render.yaml` и предложит создать сервис `badger-cfo`
+3. Задай переменные окружения:
+   - `FERNET_KEY` — вставь ключ из шага 1
+   - `APP_ACCESS_CODE` — придумай код (например `112233`)
+   - `TELEGRAM_BOT_TOKEN` — токен бота (необязательно)
+4. Нажми **Apply** — через 3 минуты получишь ссылку `https://badger-cfo-xxxx.onrender.com`
+
+### Шаг 3 — Установить на телефон
+
+**iPhone (Safari):**
+1. Открой ссылку в Safari → введи код доступа
+2. Нажми ⬆ (кнопка «Поделиться» внизу экрана)
+3. Прокрути → **«На экран Домой»** → **Добавить**
+
+**Samsung / Android (Chrome):**
+1. Открой ссылку в Chrome → введи код доступа
+2. Меню ⋮ (три точки справа вверху)
+3. **«Добавить на главный экран»** / **«Установить приложение»**
+
+---
+
+## Быстрый старт (локально для новичка — 3 действия)
 
 1. **Установи Python 3.11+** с [python.org/downloads](https://python.org/downloads).
    На Windows при установке поставь галочку **«Add Python to PATH»**.
