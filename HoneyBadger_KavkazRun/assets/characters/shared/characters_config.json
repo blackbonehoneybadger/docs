@@ -1,0 +1,40 @@
+{
+  "characters": [
+    {
+      "id": "honey_badger",
+      "name": "HONEY BADGER",
+      "role": "Герой",
+      "speed": 180,
+      "jump_force": 360,
+      "health": 3,
+      "attack_type": "poison_katana",
+      "description": "Бесстрашный медоед с ядовитой катаной. Враги тают в зелёном дыму.",
+      "color_body": "#2E5A2E",
+      "scene": "res://scenes/characters/HoneyBadger.tscn"
+    },
+    {
+      "id": "boy",
+      "name": "BOY",
+      "role": "Танк",
+      "speed": 130,
+      "jump_force": 280,
+      "health": 5,
+      "attack_type": "heavy_punch",
+      "description": "Силач-крепыш. Удар по земле отбрасывает врагов и ломает камень.",
+      "color_body": "#3A3A4A",
+      "scene": "res://scenes/characters/Boy.tscn"
+    },
+    {
+      "id": "mr_kroo",
+      "name": "MR. KROO",
+      "role": "Ловкач",
+      "speed": 220,
+      "jump_force": 430,
+      "health": 2,
+      "attack_type": "scissors",
+      "description": "Быстрый и прыгучий ловкач. Враги разлетаются цветным конфетти.",
+      "color_body": "#6A6A72",
+      "scene": "res://scenes/characters/MrKroo.tscn"
+    }
+  ]
+}
