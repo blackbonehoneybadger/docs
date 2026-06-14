@@ -29,7 +29,12 @@ func _move(delta: float) -> void:
 	sprite.flip_h = velocity.x > 0
 
 func _nearest_player() -> Node2D:
-	var players := get_tree().get_nodes_in_group("player")
-	if players.is_empty():
-		return null
-	return players[0]
+	var nearest: Node2D = null
+	var best := INF
+	for p in get_tree().get_nodes_in_group("player"):
+		if p is Node2D:
+			var d := global_position.distance_to(p.global_position)
+			if d < best:
+				best = d
+				nearest = p
+	return nearest

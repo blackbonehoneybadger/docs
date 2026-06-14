@@ -36,11 +36,19 @@ func _generate_scenes() -> void:
 	_save_scene("res://scenes/enemies/ForestSpirit.tscn", _body2d("ForestSpirit", "res://scripts/enemies/ForestSpirit.gd"))
 	_save_scene("res://scenes/enemies/StoneSnail.tscn", _body2d("StoneSnail", "res://scripts/enemies/StoneSnail.gd"))
 	_save_scene("res://scenes/enemies/CaveBat.tscn", _body2d("CaveBat", "res://scripts/enemies/CaveBat.gd"))
+	_save_scene("res://scenes/enemies/Turret.tscn", _body2d("Turret", "res://scripts/enemies/Turret.gd"))
 
 	# Objects (root Area2D / StaticBody2D + script).
 	_save_scene("res://scenes/objects/Coin.tscn", _area2d("Coin", "res://scripts/objects/Coin.gd"))
 	_save_scene("res://scenes/objects/Checkpoint.tscn", _area2d("Checkpoint", "res://scripts/objects/Checkpoint.gd"))
 	_save_scene("res://scenes/objects/LevelEnd.tscn", _area2d("LevelEnd", "res://scripts/objects/LevelEnd.gd"))
+	_save_scene("res://scenes/objects/Projectile.tscn", _area2d("Projectile", "res://scripts/objects/Projectile.gd"))
+	_save_scene("res://scenes/objects/WeaponPickup.tscn", _area2d("WeaponPickup", "res://scripts/objects/WeaponPickup.gd"))
+	_save_scene("res://scenes/objects/PowerUpItem.tscn", _area2d("PowerUpItem", "res://scripts/objects/PowerUpItem.gd"))
+	var qblock := StaticBody2D.new()
+	qblock.name = "QuestionBlock"
+	qblock.set_script(load("res://scripts/objects/QuestionBlock.gd"))
+	_save_scene("res://scenes/objects/QuestionBlock.tscn", qblock)
 
 	# Level (root Node2D + script).
 	var level := Node2D.new()

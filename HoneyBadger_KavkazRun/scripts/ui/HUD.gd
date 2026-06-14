@@ -5,8 +5,13 @@ var _hearts: Label
 var _lives: Label
 var _coins: Label
 var _score: Label
+var _weapon: Label
+var _pmeter: Label
+var _player: Node
 var _max_health: int = 3
 var _current_health: int = 3
+
+const WEAPON_NAMES := ["ОДИНОЧНЫЙ", "РАЗБРОС", "СКОРОСТРЕЛ"]
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -33,6 +38,16 @@ func _build() -> void:
 	_score.size = Vector2(142, 20)
 	add_child(_score)
 
+	_weapon = _make_label(Vector2(330, 24), 11, Color(0.7, 0.95, 1.0))
+	_weapon.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_weapon.size = Vector2(142, 16)
+	add_child(_weapon)
+
+	_pmeter = _make_label(Vector2(330, 40), 11, Color(0.5, 1.0, 0.5))
+	_pmeter.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_pmeter.size = Vector2(142, 16)
+	add_child(_pmeter)
+
 func _make_label(pos: Vector2, font_size: int, color: Color) -> Label:
 	var l := Label.new()
 	l.position = pos
@@ -42,8 +57,23 @@ func _make_label(pos: Vector2, font_size: int, color: Color) -> Label:
 	l.add_theme_constant_override("outline_size", 4)
 	return l
 
+func _process(_delta: float) -> void:
+	if _player == null or not is_instance_valid(_player):
+		return
+	if _weapon:
+		var lvl: int = int(_player.get("weapon_level"))
+		_weapon.text = "Оружие: " + WEAPON_NAMES[clampi(lvl, 0, WEAPON_NAMES.size() - 1)]
+	if _pmeter:
+		var m: float = 0.0
+		if _player.has_method("get_run_meter"):
+			m = _player.get_run_meter()
+		var filled := int(round(m * 6.0))
+		var bar := "█".repeat(filled) + "░".repeat(6 - filled)
+		_pmeter.text = ("P: " + bar) if m < 1.0 else ("P: " + bar + " ✈")
+
 ## Called by the level after the player is spawned.
 func bind_player(player: Node) -> void:
+	_player = player
 	if player and player.has_signal("health_changed"):
 		player.connect("health_changed", _on_health_changed)
 		var mh: Variant = player.get("max_health")

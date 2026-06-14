@@ -23,6 +23,10 @@ const STONEBLOCK_SCRIPT := "res://scripts/objects/StoneBlock.gd"
 const FOREST_SPIRIT_SCRIPT := "res://scripts/enemies/ForestSpirit.gd"
 const STONE_SNAIL_SCRIPT := "res://scripts/enemies/StoneSnail.gd"
 const CAVE_BAT_SCRIPT := "res://scripts/enemies/CaveBat.gd"
+const TURRET_SCRIPT := "res://scripts/enemies/Turret.gd"
+const QUESTION_BLOCK_SCRIPT := "res://scripts/objects/QuestionBlock.gd"
+const WEAPON_PICKUP_SCRIPT := "res://scripts/objects/WeaponPickup.gd"
+const POWERUP_SCRIPT := "res://scripts/objects/PowerUpItem.gd"
 
 var player_spawn: Vector2 = Vector2(120, 520)
 
@@ -33,7 +37,10 @@ func build(root: Node2D) -> Vector2:
 	_build_platforms(root)
 	_build_breakables(root)
 	_build_coins(root)
+	_build_question_blocks(root)
+	_build_pickups(root)
 	_build_enemies(root)
+	_build_turrets(root)
 	_build_checkpoint(root)
 	_build_level_end(root)
 	return player_spawn
@@ -140,6 +147,36 @@ func _spawn_enemy(root: Node2D, script_path: String, pos: Vector2) -> void:
 	var enemy := _instance_script(script_path, CharacterBody2D.new())
 	enemy.position = pos
 	root.add_child(enemy)
+
+func _build_turrets(root: Node2D) -> void:
+	# 2x Contra-style turrets on the ground.
+	for pos in [Vector2(1500, 552), Vector2(3300, 552)]:
+		_spawn_enemy(root, TURRET_SCRIPT, pos)
+
+# ----------------------- Mario-3 ? blocks and pickups ------------------------
+
+func _build_question_blocks(root: Node2D) -> void:
+	# [position, content]; placed above platforms so they're bump-reachable.
+	var blocks := [
+		[Vector2(456, 472), "coin"],
+		[Vector2(700, 372), "weapon"],
+		[Vector2(1500, 320), "power"],
+		[Vector2(2880, 312), "coin"],
+		[Vector2(3180, 240), "weapon"],
+	]
+	for entry in blocks:
+		var block := _instance_script(QUESTION_BLOCK_SCRIPT, StaticBody2D.new())
+		block.set("content", entry[1])
+		block.position = entry[0]
+		root.add_child(block)
+
+func _build_pickups(root: Node2D) -> void:
+	var weapon := _instance_script(WEAPON_PICKUP_SCRIPT, Area2D.new())
+	weapon.position = Vector2(2600, 436)
+	root.add_child(weapon)
+	var honey := _instance_script(POWERUP_SCRIPT, Area2D.new())
+	honey.position = Vector2(3990, 410)
+	root.add_child(honey)
 
 # ---------------------------- checkpoint / end -------------------------------
 

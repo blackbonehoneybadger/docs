@@ -12,6 +12,7 @@ var _joy_knob: TextureRect
 var _joy_center: Vector2
 var _joy_pointer: int = -1   # -1 none, -2 mouse, >=0 touch index
 var _move_state: int = 0     # -1 left, 0 none, 1 right
+var _aim_state: int = 0      # -1 up, 0 none, 1 down
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -36,9 +37,10 @@ func _build() -> void:
 	_joy_knob.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_joy_knob)
 
-	_make_action_button(Vector2(408, 210), Color(0.2, 0.8, 0.3), "jump", "A")
-	_make_action_button(Vector2(360, 170), Color(0.85, 0.2, 0.2), "attack", "B")
-	_make_action_button(Vector2(440, 160), Color(0.25, 0.45, 0.9), "special", "S")
+	_make_action_button(Vector2(410, 215), Color(0.2, 0.8, 0.3), "jump", "A")
+	_make_action_button(Vector2(356, 188), Color(0.85, 0.2, 0.2), "attack", "B")
+	_make_action_button(Vector2(446, 178), Color(0.25, 0.45, 0.9), "special", "S")
+	_make_action_button(Vector2(398, 150), Color(0.7, 0.4, 0.9), "shoot", "F")
 	_make_pause_button(Vector2(462, 16))
 
 func _make_action_button(pos: Vector2, color: Color, action: String, glyph: String) -> void:
@@ -109,6 +111,7 @@ func _update_knob(pos: Vector2) -> void:
 	if _joy_base:
 		_joy_base.position = _joy_center - Vector2(60, 60)
 	_set_move(offset.x)
+	_set_aim(offset.y)
 
 func _set_move(dx: float) -> void:
 	var new_state := 0
@@ -127,11 +130,30 @@ func _set_move(dx: float) -> void:
 		Input.action_press("move_right")
 	_move_state = new_state
 
+func _set_aim(dy: float) -> void:
+	var new_state := 0
+	if dy < -DEADZONE_PX * 1.6:
+		new_state = -1
+	elif dy > DEADZONE_PX * 1.6:
+		new_state = 1
+	if new_state == _aim_state:
+		return
+	Input.action_release("aim_up")
+	Input.action_release("aim_down")
+	if new_state == -1:
+		Input.action_press("aim_up")
+	elif new_state == 1:
+		Input.action_press("aim_down")
+	_aim_state = new_state
+
 func _release_joystick() -> void:
 	_joy_pointer = -1
 	_set_move(0.0)
+	_set_aim(0.0)
 	Input.action_release("move_left")
 	Input.action_release("move_right")
+	Input.action_release("aim_up")
+	Input.action_release("aim_down")
 	_joy_center = Vector2(96, 200)
 	if _joy_knob:
 		_joy_knob.position = _joy_center - Vector2(26, 26)

@@ -34,9 +34,12 @@ func _ensure_input_actions() -> void:
 	var defaults := {
 		"move_left": [KEY_A, KEY_LEFT],
 		"move_right": [KEY_D, KEY_RIGHT],
-		"jump": [KEY_SPACE, KEY_W, KEY_UP],
+		"jump": [KEY_SPACE, KEY_W],
+		"aim_up": [KEY_UP, KEY_I],
+		"aim_down": [KEY_DOWN, KEY_K],
 		"attack": [KEY_Z, KEY_J],
-		"special": [KEY_X, KEY_K],
+		"special": [KEY_X, KEY_U],
+		"shoot": [KEY_C, KEY_L],
 		"pause": [KEY_ESCAPE],
 	}
 	for action_name in defaults.keys():

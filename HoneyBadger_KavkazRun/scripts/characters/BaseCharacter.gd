@@ -17,6 +17,24 @@ const DEATH_Y: float = 900.0
 const ATTACK_TIME: float = 0.18
 const SPECIAL_RADIUS: float = 96.0
 
+# --- Contra: shooting ---
+const PROJECTILE_SCRIPT := "res://scripts/objects/Projectile.gd"
+const PROJECTILE_SCENE := "res://scenes/objects/Projectile.tscn"
+const SHOOT_CD_SINGLE: float = 0.26
+const SHOOT_CD_SPREAD: float = 0.36
+const SHOOT_CD_RAPID: float = 0.11
+const WEAPON_MAX: int = 2  # 0 single, 1 spread, 2 rapid
+
+# --- Battletoads: combo / smash ---
+const COMBO_WINDOW: float = 0.55
+const SMASH_KNOCKBACK: float = 360.0
+
+# --- Mario 3: P-meter run / flight ---
+const RUN_FILL_TIME: float = 1.1
+const RUN_GROUND_DRAIN: float = 0.6
+const FLY_DRAIN: float = 1.6      # seconds of flight from a full meter
+const FLY_RISE: float = -90.0     # hover/climb velocity while flying
+
 # Collision layer bits (1-based to match set_collision_*_value):
 const L_WORLD := 1
 const L_PLAYER := 2
@@ -38,6 +56,15 @@ var _attack_timer: float = 0.0
 var _is_dead: bool = false
 var _facing: int = 1
 var _start_position: Vector2
+
+# Contra / Battletoads / Mario 3 state
+var weapon_level: int = 0
+var run_meter: float = 0.0
+var _shoot_cd: float = 0.0
+var _flying: bool = false
+var _combo_count: int = 0
+var _combo_timer: float = 0.0
+var _is_smash: bool = false
 
 @onready var sprite: Sprite2D = _ensure_sprite()
 @onready var body_collision: CollisionShape2D = _ensure_body_collision()
@@ -157,23 +184,33 @@ func _physics_process(delta: float) -> void:
 	if _is_dead:
 		return
 
+	# Gravity, with Mario-3 style flight when the P-meter is charged.
 	if not is_on_floor():
-		velocity.y = minf(velocity.y + GRAVITY * delta, MAX_FALL_SPEED)
+		if _flying and Input.is_action_pressed("jump") and run_meter > 0.0:
+			run_meter = maxf(0.0, run_meter - delta / FLY_DRAIN)
+			velocity.y = move_toward(velocity.y, FLY_RISE, 700.0 * delta)
+			if run_meter <= 0.0:
+				_flying = false
+		else:
+			_flying = false
+			velocity.y = minf(velocity.y + GRAVITY * delta, MAX_FALL_SPEED)
 		_coyote_timer -= delta
 	else:
 		_coyote_timer = COYOTE_TIME
+		_flying = false
 
 	var dir := Input.get_axis("move_left", "move_right")
 	if dir != 0.0:
 		velocity.x = dir * speed
 		_facing = signi(int(sign(dir)))
 		sprite.flip_h = _facing < 0
-		attack_area.scale.x = _facing
 	else:
 		velocity.x = move_toward(velocity.x, 0.0, speed * 0.25)
 
 	if Input.is_action_just_pressed("jump"):
 		_jump_buffer_timer = JUMP_BUFFER_TIME
+		if not is_on_floor() and run_meter >= 1.0:
+			_flying = true
 	else:
 		_jump_buffer_timer -= delta
 
@@ -185,10 +222,19 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("special"):
 		_perform_special()
 
+	_shoot_cd = maxf(0.0, _shoot_cd - delta)
+	if Input.is_action_pressed("shoot"):
+		_try_shoot()
+
+	if _combo_timer > 0.0:
+		_combo_timer -= delta
+
 	if _attack_timer > 0.0:
 		_attack_timer -= delta
 		if _attack_timer <= 0.0:
 			attack_area.monitoring = false
+			_is_smash = false
+			attack_area.scale = Vector2(_facing, 1.0)
 
 	if _invincible_timer > 0.0:
 		_invincible_timer -= delta
@@ -198,9 +244,81 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	_handle_contacts()
+	_update_run_meter(delta)
 
 	if global_position.y > DEATH_Y:
 		_die()
+
+# --- Mario 3: P-meter charges while sprinting on the ground ---
+func _update_run_meter(delta: float) -> void:
+	if is_on_floor():
+		if absf(velocity.x) >= speed * 0.9:
+			run_meter = minf(1.0, run_meter + delta / RUN_FILL_TIME)
+		else:
+			run_meter = maxf(0.0, run_meter - delta / RUN_GROUND_DRAIN)
+
+func get_run_meter() -> float:
+	return run_meter
+
+# --- Contra: shooting ---
+func _try_shoot() -> void:
+	if _shoot_cd > 0.0:
+		return
+	var aim := _compute_aim()
+	match weapon_level:
+		1:  # spread of three
+			_spawn_bullet(aim.rotated(-0.26))
+			_spawn_bullet(aim)
+			_spawn_bullet(aim.rotated(0.26))
+			_shoot_cd = SHOOT_CD_SPREAD
+		2:  # rapid single
+			_spawn_bullet(aim)
+			_shoot_cd = SHOOT_CD_RAPID
+		_:  # default single
+			_spawn_bullet(aim)
+			_shoot_cd = SHOOT_CD_SINGLE
+	AudioManager.play_sfx("attack")
+
+func _compute_aim() -> Vector2:
+	var horiz := Input.get_axis("move_left", "move_right")
+	var up := Input.is_action_pressed("aim_up")
+	var down := Input.is_action_pressed("aim_down") and not is_on_floor()
+	var hx := signf(horiz)
+	if up and hx != 0.0:
+		return Vector2(hx, -1).normalized()
+	if down and hx != 0.0:
+		return Vector2(hx, 1).normalized()
+	if up:
+		return Vector2(0, -1)
+	if down:
+		return Vector2(0, 1)
+	if hx != 0.0:
+		return Vector2(hx, 0)
+	return Vector2(_facing, 0)
+
+func _spawn_bullet(dir: Vector2) -> void:
+	var bullet: Area2D
+	if ResourceLoader.exists(PROJECTILE_SCENE):
+		bullet = (load(PROJECTILE_SCENE) as PackedScene).instantiate()
+	else:
+		bullet = Area2D.new()
+		bullet.set_script(load(PROJECTILE_SCRIPT))
+	if bullet.has_method("setup"):
+		# Bullets deal instant "normal" damage (Contra-style); poison stays on melee.
+		bullet.setup(dir, true, "normal")
+	get_parent().add_child(bullet)
+	bullet.global_position = global_position + dir.normalized() * 14.0 + Vector2(0, -6)
+
+# --- Mario 3: power-up and Contra weapon upgrade ---
+func power_up() -> void:
+	max_health += 1
+	current_health = max_health
+	emit_signal("health_changed", current_health, max_health)
+	AudioManager.play_sfx("coin")
+
+func upgrade_weapon() -> void:
+	weapon_level = mini(WEAPON_MAX, weapon_level + 1)
+	AudioManager.play_sfx("coin")
 
 func _do_jump() -> void:
 	velocity.y = -jump_force
@@ -208,11 +326,34 @@ func _do_jump() -> void:
 	_jump_buffer_timer = 0.0
 	AudioManager.play_sfx("jump")
 
+## Battletoads-style combo: every 3rd hit in quick succession is a big "smash"
+## with a wider hitbox, heavier knockback and a camera shake.
 func _start_attack() -> void:
+	if _combo_timer > 0.0:
+		_combo_count += 1
+	else:
+		_combo_count = 1
+	_combo_timer = COMBO_WINDOW
+	_is_smash = (_combo_count % 3 == 0)
 	_attack_timer = ATTACK_TIME
 	attack_area.monitoring = true
-	AudioManager.play_sfx("attack")
+	if _is_smash:
+		attack_area.scale = Vector2(_facing * 1.7, 1.7)
+		AudioManager.play_sfx("stomp")
+		_camera_shake(5.0)
+	else:
+		attack_area.scale = Vector2(_facing, 1.0)
+		AudioManager.play_sfx("attack")
 	_perform_attack()
+
+func _camera_shake(amount: float) -> void:
+	var cam := get_node_or_null("Camera2D")
+	if cam == null:
+		return
+	var tween := create_tween()
+	tween.tween_property(cam, "offset", Vector2(amount, -amount), 0.04)
+	tween.tween_property(cam, "offset", Vector2(-amount * 0.6, amount * 0.4), 0.04)
+	tween.tween_property(cam, "offset", Vector2.ZERO, 0.06)
 
 ## Default attack: hit every enemy in the attack area with this character's effect.
 func _perform_attack() -> void:
@@ -230,6 +371,8 @@ func _perform_special() -> void:
 
 func _hit_enemy(node: Node) -> void:
 	if node and node.is_in_group("enemies") and node.has_method("hit"):
+		if _is_smash and node.has_method("knockback"):
+			node.knockback(global_position, SMASH_KNOCKBACK)
 		node.hit(get_attack_effect(), global_position)
 
 ## Subclasses override to pick poison / normal / confetti.
