@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        env:
+          DATABASE_URL: "sqlite:///./test_ci.db"
+          # FERNET_KEY and APP_ACCESS_CODE intentionally omitted:
+          # conftest.py sets a valid FERNET_KEY via os.environ.setdefault
+          # APP_ACCESS_CODE empty = auth gate disabled (correct for tests)
+        run: python -m pytest tests/ -q --tb=short

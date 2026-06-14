@@ -1,0 +1,21 @@
+# One-click deploy config for Render.com (https://render.com).
+# In Render: New + → Blueprint → connect this repo → it reads this file.
+services:
+  - type: web
+    name: badger-cfo
+    runtime: docker
+    plan: starter            # ~$7/mo; "free" also works for trying it out
+    healthCheckPath: /health
+    envVars:
+      - key: FERNET_KEY
+        generateValue: false  # paste your own (see README)
+      - key: APP_ACCESS_CODE
+        sync: false           # set your private code in the dashboard
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        value: sqlite:////data/badger_cfo.db
+    disk:
+      name: badger-data
+      mountPath: /data
+      sizeGB: 1
