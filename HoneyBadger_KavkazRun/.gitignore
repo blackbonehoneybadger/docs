@@ -1,0 +1,10 @@
+# Godot 4 editor cache and import artifacts
+.godot/
+*.import
+export.cfg
+export_presets.cfg
+
+# Build output
+build/
+*.apk
+*.aab
