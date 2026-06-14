@@ -55,8 +55,22 @@
 | `/morning_report` `/evening_report` | Полный отчёт + PDF + картинка |
 | `/recommend` | Инвестиционный совет дня (требует approve) |
 
+## Приложение на телефон (Samsung + iPhone)
+
+Есть установливаемое **PWA-приложение** (иконка на главном экране, полный
+экран, один код для Android и iOS — без App Store и Google Play). Открой
+сервер в браузере и добавь на главный экран. Полная инструкция с деплоем в
+облако: [docs_project/MOBILE_APP.md](docs_project/MOBILE_APP.md).
+
+Локально приложение доступно сразу после запуска API на http://localhost:8000
+
+Для публичного доступа обязательно задай `APP_ACCESS_CODE` в `.env` — иначе
+любой со ссылкой увидит твои финансы. Деплой в облако: `Dockerfile` +
+`render.yaml` уже готовы (Render / Railway / Fly / VPS).
+
 ## Инструкции
 
+- [Приложение на телефон + облачный деплой](docs_project/MOBILE_APP.md)
 - [Plaid sandbox: подключение банков](docs_project/PLAID_SANDBOX.md)
 - [Ручные источники: банки, карты, наличные, долги](docs_project/MANUAL_SOURCES.md)
 - [Read-only API-ключи бирж](docs_project/EXCHANGE_KEYS.md)

@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./badger_cfo.db"
     telegram_bot_token: str = ""
 
+    # PWA / web app access code. When set, the web app and API require it.
+    # Leave empty ONLY for local development. MUST be set for any public deploy.
+    app_access_code: str = ""
+
     # Encryption key for secrets at rest (Fernet). Generate with:
     #   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
     fernet_key: str = ""
